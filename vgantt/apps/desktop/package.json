@@ -1,0 +1,34 @@
+{
+  "name": "@vgantt/desktop",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Electron shell. Hosts the web UI and owns the local C:/Rsdw vault.",
+  "main": "dist/main.js",
+  "scripts": {
+    "build": "npm run build --workspace @vgantt/vault-core && tsc -p tsconfig.json && tsc -p tsconfig.preload.json",
+    "start": "npm run build && electron .",
+    "dist": "npm run build && electron-builder --win nsis"
+  },
+  "dependencies": {
+    "@vgantt/vault-core": "file:../../packages/vault-core"
+  },
+  "devDependencies": {
+    "@types/node": "^22.10.2",
+    "electron": "^33.2.1",
+    "electron-builder": "^25.1.8",
+    "typescript": "^5.7.2"
+  },
+  "build": {
+    "appId": "md.vgantt.desktop",
+    "productName": "Vgantt",
+    "files": [
+      "dist/**/*",
+      "renderer/**/*"
+    ],
+    "win": {
+      "target": "nsis"
+    },
+    "extraResources": []
+  },
+  "type": "module"
+}

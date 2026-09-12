@@ -1,0 +1,46 @@
+# Development stack. Production runs PostgreSQL on the existing server; only the
+# API and web containers are deployed there.
+services:
+  postgres:
+    image: postgres:16-alpine
+    container_name: vgantt-postgres
+    environment:
+      POSTGRES_DB: vgantt
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-postgres}
+      # C.UTF-8 keeps Turkish collation predictable across platforms.
+      POSTGRES_INITDB_ARGS: "--encoding=UTF8 --lc-collate=C.UTF-8 --lc-ctype=C.UTF-8"
+    ports:
+      - "5432:5432"
+    volumes:
+      - vgantt-pgdata:/var/lib/postgresql/data
+      # Migrations are applied by db/migrate.sh, not by the entrypoint, so that
+      # the same script runs in dev, CI and production.
+      - ./db:/opt/vgantt-db:ro
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres -d vgantt"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
+  api:
+    build:
+      context: .
+      dockerfile: apps/api/Dockerfile
+    container_name: vgantt-api
+    depends_on:
+      postgres:
+        condition: service_healthy
+    environment:
+      NODE_ENV: development
+      DB_HOST: postgres
+      DB_NAME: vgantt
+      DB_APP_PASSWORD: ${VGANTT_DB_APP_PASSWORD:-vgantt_app_dev_pw}
+      DB_PLATFORM_PASSWORD: ${VGANTT_DB_PLATFORM_PASSWORD:-vgantt_platform_dev_pw}
+      JWT_SECRET: ${JWT_SECRET:-change-me-32-chars-minimum-secret-value}
+      CORS_ORIGINS: http://localhost:5173
+    ports:
+      - "3000:3000"
+
+volumes:
+  vgantt-pgdata:
