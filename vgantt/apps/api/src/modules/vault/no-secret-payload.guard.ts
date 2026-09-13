@@ -38,7 +38,7 @@ export class NoSecretPayloadGuard implements CanActivate {
         fields: offenders,
         message:
           'Şifre kasası verileri sunucuya gönderilemez. Bu modüldeki tüm veriler ' +
-          'yalnızca yerel makinede (C:/Rsdw) saklanır.',
+          'yalnızca yerel makinede, Rsdw klasöründe saklanır.',
       });
     }
 

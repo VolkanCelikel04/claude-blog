@@ -1,6 +1,7 @@
 import { constants } from 'node:fs';
 import { access, mkdir, readFile, rename, writeFile, copyFile } from 'node:fs/promises';
-import { dirname, join } from 'node:path';
+import { dirname } from 'node:path';
+import { resolveVaultDirectory, resolveVaultPath, VAULT_FILE_NAME } from '../vault-location.ts';
 import type { VaultFileAdapter } from '../types.ts';
 
 /**
@@ -42,17 +43,14 @@ export class NodeFsAdapter implements VaultFileAdapter {
 }
 
 /**
- * C:/Rsdw on Windows, as specified.
- *
- * On macOS/Linux (developer machines, CI) the same layout is created under the
- * user's home directory so the code path is identical everywhere.
+ * Platform-standard vault directory. The policy - including which cloud-sync
+ * opt-out each platform needs - lives in vault-location.ts so the desktop shell
+ * and the mobile shells cannot drift apart.
  */
 export function defaultVaultDirectory(): string {
-  if (process.platform === 'win32') return 'C:/Rsdw';
-  const home = process.env.HOME ?? process.env.USERPROFILE ?? '.';
-  return join(home, 'Rsdw');
+  return resolveVaultDirectory();
 }
 
-export function defaultVaultPath(fileName = 'vault.xlsx'): string {
-  return `${defaultVaultDirectory()}/${fileName}`;
+export function defaultVaultPath(fileName = VAULT_FILE_NAME): string {
+  return resolveVaultPath({ fileName });
 }

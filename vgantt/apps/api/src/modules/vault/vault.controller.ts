@@ -12,7 +12,9 @@ import { RequireAudience } from '../../common/auth/decorators';
  *
  * KESİN KURAL: bu controller'da kasa içeriğini kabul eden bir uç nokta YOKTUR
  * ve olmayacaktır. Şifreler, kullanıcı adları ve kasa dosyasının kendisi
- * yalnızca kullanıcının makinesinde, C:/Rsdw altında yaşar.
+ * yalnızca kullanıcının makinesinde, platformun Rsdw klasöründe yaşar
+ * (Windows C:/Rsdw, macOS ~/Library/Application Support/Rsdw, Linux
+ * ~/.local/share/Rsdw - bkz. docs/SECURITY-VAULT.md).
  *
  * There is deliberately no POST /vault/entries, no sync endpoint and no
  * backup upload. NoSecretPayloadGuard rejects credential-shaped payloads at

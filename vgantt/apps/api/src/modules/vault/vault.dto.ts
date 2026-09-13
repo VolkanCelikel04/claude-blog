@@ -12,12 +12,21 @@ export class RegisterWorkstationDto {
   @IsString() @MinLength(1) @MaxLength(100)
   deviceLabel!: string;
 
-  /** Where the local file lives. A path, not its contents. */
+  /**
+   * Where the local file lives. A path, not its contents.
+   *
+   * Accepts a Windows drive path (C:/Rsdw/vault.xlsx) or a POSIX absolute path
+   * (macOS, Linux and the mobile sandboxes all report one). Relative paths and
+   * traversal are rejected: this value is only ever displayed back to support,
+   * but a path that cannot be trusted should not be stored in the first place.
+   */
   @IsOptional()
   @IsString()
   @MaxLength(260)
-  @Matches(/^[A-Za-z]:[\\/][^<>"|?*]*$/, {
-    message: 'Kasa yolu geçerli bir Windows dizini olmalıdır (ör. C:/Rsdw/vault.xlsx).',
+  @Matches(/^(?:[A-Za-z]:[\\/]|\/)(?!.*\.\.)[^<>"|?*\u0000]*$/, {
+    message:
+      'Kasa yolu mutlak bir dizin olmalıdır (ör. C:/Rsdw/vault.xlsx veya ' +
+      '/Users/ad/Library/Application Support/Rsdw/vault.xlsx).',
   })
   vaultPath?: string;
 

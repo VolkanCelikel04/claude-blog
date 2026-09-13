@@ -23,7 +23,7 @@ dosyayı açar, satır bazlı okur ve yazar.
 
 | Dağıtım | Kasa nerede çalışır | Dosya yolu |
 |---|---|---|
-| **Electron (önerilen)** | main process | Tam olarak `C:/Rsdw/vault.xlsx` |
+| **Electron (önerilen)** | main process | Platform standardı (aşağıdaki tablo) |
 | Saf tarayıcı (yedek) | sayfa içi, File System Access API | Kullanıcının bir kez seçtiği klasör |
 
 Arayüz (React) her iki durumda da aynıdır; yalnızca depolama adaptörü değişir.
@@ -31,6 +31,63 @@ Saf tarayıcı yedeği için `packages/vault-core/src/adapters/file-system-acces
 hazırdır, ancak ZIP katmanı `node:zlib` kullandığından tarayıcı derlemesinde
 `CompressionStream('deflate-raw')` ile değiştirilmesi gerekir. Garanti her iki
 durumda aynıdır: baytlar makineden çıkmaz.
+
+---
+
+## Dosya nerede durur
+
+Buradaki asıl kısıt "hangi klasör gelenekseldir" değil, **"hangi klasör sessizce
+buluta yüklenmez"**. Her platformun, varsayılan olarak dosyayı cihazdan dışarı
+kopyalayan bir yedekleme servisi var - ve bu, modülün tek kuralını çiğner.
+
+| Platform | Konum | Neden | Zorunlu ek adım |
+|---|---|---|---|
+| **Windows** | `C:\Rsdw\vault.xlsx` | Sürücü kökü, kullanıcı profilinin dışında. OneDrive "Bilinen Klasör Taşıma" Masaüstü, Belgeler ve Resimler'i buluta yönlendirir; `C:\Rsdw` bu kümede değil. | yok |
+| **macOS** | `~/Library/Application Support/Rsdw/vault.xlsx` | Apple'ın uygulama verisi için belgelediği yer. **`~/Documents` bilinçli olarak kullanılmıyor**: yeni bir Mac'te varsayılan açık olan iCloud Drive "Masaüstü ve Belgeler" eşitlemesi oradaki her şeyi Apple'a yükler. Application Support iCloud Drive kapsamı dışındadır. | yok |
+| **Linux** | `$XDG_DATA_HOME/Rsdw/vault.xlsx` (varsayılan `~/.local/share/Rsdw`) | XDG Base Directory: kullanıcı **verisi**, ayar veya önbellek değil. Önbellek dizini sistem tarafından istenildiği an silinebilir. | yok |
+| **iOS** | `<app container>/Library/Application Support/Rsdw/vault.xlsx` | Uygulama sandbox'ı. `Documents/` Dosyalar uygulamasında görünür ama iCloud'a yedeklenir - Application Support da öyle. `Library/Caches` yedeklenmez ama iOS depolama sıkışınca silebilir; bir kasa için kabul edilemez. | `isExcludedFromBackupKey = true` (dizin oluşturulur oluşturulmaz) |
+| **Android** | `Context.getFilesDir()/Rsdw/vault.xlsx` | Uygulamaya özel iç depolama: root olmadan başka uygulamalar okuyamaz. **`getExternalFilesDir()` değil** - o paylaşılan depolamada durur. | `android:allowBackup="false"` veya `dataExtractionRules` ile `files/Rsdw` hariç tutulmalı (Android 6+ Auto Backup varsayılan olarak Google Drive'a kopyalar) |
+
+Klasör adı her platformda aynı: **`Rsdw`**. Kullanıcı cihaz değiştirdiğinde ne
+arayacağını bilir, destek ekibi tek bir ad sorar.
+
+### Tek kaynak: `vault-location.ts`
+
+Bu tablo dokümantasyon değil, **çalışan kod**:
+
+```ts
+import { resolveVaultPath, backupExclusionFor } from '@vgantt/vault-core';
+
+resolveVaultPath({ platform: 'win32' });
+// 'C:/Rsdw/vault.xlsx'
+
+resolveVaultPath({ platform: 'darwin', env: { HOME: '/Users/volkan' } });
+// '/Users/volkan/Library/Application Support/Rsdw/vault.xlsx'
+
+// Sandbox'lı platformlar yolu tahmin etmez; konteyneri host verir.
+resolveVaultPath({ platform: 'android', baseDirectory: filesDir });
+// '<filesDir>/Rsdw/vault.xlsx'
+
+backupExclusionFor('ios');
+// 'Set URLResourceKey.isExcludedFromBackupKey = true ...'
+```
+
+iOS ve Android için `baseDirectory` verilmezse fonksiyon **hata fırlatır**.
+Sandbox yolunu tahmin etmek, uygulamanın yazamayacağı bir dosya üretirdi;
+sessizce yanlış yere yazmaktansa açıkça durması daha iyi.
+
+Kullanıcı kendi yolunu seçebilir (`VGANTT_VAULT_DIR` veya uygulama ayarı) -
+kasasını şifreli bir bölümde ya da çıkarılabilir diskte tutmak isteyen için
+meşru bir tercih.
+
+### Mobil kabuklar için not
+
+`vault-core` bir Node paketidir (ZIP katmanı `node:zlib` kullanır), yani iOS ve
+Android'de doğrudan çalışmaz. Bu platformlar için tablodaki satırlar bir
+**sözleşmedir**: yerel uygulama kendi dilinde aynı dizini, aynı klasör adını ve
+aynı yedekleme dışlamasını uygular. `VAULT_LOCATIONS` tablosu bu sözleşmenin
+tek kaynağı olduğu için masaüstü ve mobil kabuklar zamanla birbirinden
+ayrışamaz.
 
 ---
 
@@ -160,7 +217,7 @@ curl -s http://localhost:3000/api/health/vault-policy
 
 ## Testlerle kanıt
 
-`packages/vault-core/test/vault.test.ts` (13 test, `npm run test:vault`):
+`packages/vault-core/test/` (24 test, `npm run test:vault`):
 
 - dosya yoksa oluşturulur, varsa açılır - üzerine yazılmaz
 - satır bazlı ekleme/güncelleme/silme kaydet-yeniden aç döngüsünden sağ çıkar
@@ -172,6 +229,8 @@ curl -s http://localhost:3000/api/health/vault-policy
 - **kaynak dosyalarının hiçbirinde `fetch`, `XMLHttpRequest`, `WebSocket`,
   `node:net`, `node:http` yoktur** - mekanik olarak taranır
 - gerçek dosya sisteminde atomik yazma, `.bak` yedeği, artık `.tmp` dosyası yok
+- her platformun doğru dizine çözümlenmesi, macOS'ta `~/Documents`'a **düşmemesi**,
+  sandbox'lı platformların yolu tahmin etmeyi reddetmesi
 
 Son maddeden önceki test, "sunucuya gitmiyor" iddiasını bir yorum satırı
 olmaktan çıkarıp derlemede kontrol edilen bir özelliğe dönüştürür.
