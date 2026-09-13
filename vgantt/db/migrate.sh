@@ -33,7 +33,37 @@ fi
 if ! "${PSQL_BASE[@]}" -d postgres -tAc \
       "SELECT 1 FROM pg_database WHERE datname = '${DB}'" | grep -q 1; then
   echo ">> creating database $DB"
-  "${PSQL_BASE[@]}" -d postgres -c "CREATE DATABASE ${DB} ENCODING 'UTF8' LC_COLLATE 'C.UTF-8' LC_CTYPE 'C.UTF-8' TEMPLATE template0"
+
+  # Locale portability: C.UTF-8 exists in glibc (Linux) but NOT on macOS, where
+  # the equivalent is plain "C" plus a UTF8 encoding. Rather than guess, try the
+  # preferred locale and fall back to the cluster's own default, which is always
+  # valid by definition.
+  #
+  # Override with VGANTT_DB_LOCALE when you want something specific - e.g.
+  # ICU Turkish collation on PostgreSQL 15+:
+  #   VGANTT_DB_LOCALE=icu:tr-TR ./migrate.sh
+  LOCALE="${VGANTT_DB_LOCALE:-C.UTF-8}"
+
+  created=0
+  if [[ "$LOCALE" == icu:* ]]; then
+    ICU_LOCALE="${LOCALE#icu:}"
+    if "${PSQL_BASE[@]}" -d postgres -c \
+        "CREATE DATABASE ${DB} ENCODING 'UTF8' LOCALE_PROVIDER icu ICU_LOCALE '${ICU_LOCALE}' LOCALE 'C' TEMPLATE template0" 2>/dev/null; then
+      created=1
+      echo "   locale: ICU ${ICU_LOCALE}"
+    fi
+  else
+    if "${PSQL_BASE[@]}" -d postgres -c \
+        "CREATE DATABASE ${DB} ENCODING 'UTF8' LC_COLLATE '${LOCALE}' LC_CTYPE '${LOCALE}' TEMPLATE template0" 2>/dev/null; then
+      created=1
+      echo "   locale: ${LOCALE}"
+    fi
+  fi
+
+  if [[ "$created" != 1 ]]; then
+    echo "   locale '${LOCALE}' not available on this system; using the cluster default"
+    "${PSQL_BASE[@]}" -d postgres -c "CREATE DATABASE ${DB} ENCODING 'UTF8' TEMPLATE template0"
+  fi
 fi
 
 for f in "$HERE"/migrations/*.sql; do

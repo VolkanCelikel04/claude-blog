@@ -19,6 +19,8 @@ React + Electron.
 
 ## Hızlı başlangıç
 
+macOS'ta geliştiriyorsanız: [docs/DEVELOPMENT-MACOS.md](docs/DEVELOPMENT-MACOS.md).
+
 ```bash
 # 1. Veritabanı (mevcut PostgreSQL sunucunuzda)
 cd vgantt
@@ -74,6 +76,7 @@ npm run typecheck        # tüm çalışma alanları
 | [docs/ALERTS.md](docs/ALERTS.md) | 30/15/7/3 uyarı motoru, eşik politikaları |
 | [docs/ADDING-A-MODULE.md](docs/ADDING-A-MODULE.md) | **Yeni modül ekleme rehberi** - adım adım |
 | [docs/DEPLOYMENT.md](docs/DEPLOYMENT.md) | **Sunucu kurulumu** - API + PostgreSQL aynı makinede, systemd + nginx |
+| [docs/DEVELOPMENT-MACOS.md](docs/DEVELOPMENT-MACOS.md) | **macOS'ta geliştirme** - Homebrew, yerel ayarı, kasa konumu |
 
 ## Sunucuya kurulum
 
