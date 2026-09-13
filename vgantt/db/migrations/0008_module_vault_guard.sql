@@ -4,7 +4,9 @@
 -- This migration creates NO table for the vault, on purpose.
 --
 -- Module C data (usernames, passwords, notes) lives exclusively in an .xlsx
--- file under C:/Rsdw on the operator's own machine. Nothing is transmitted to
+-- file in the Rsdw folder on the operator's own device - C:/Rsdw on Windows, the
+-- platform-standard location elsewhere (see docs/SECURITY-VAULT.md). Nothing is
+-- transmitted to
 -- the API and nothing is persisted here.
 --
 -- What this file DOES create is the enforcement: an event trigger that rejects
@@ -19,7 +21,7 @@ INSERT INTO platform.modules
     (key, name, description, category, icon, sort_order, requires_desktop, stores_server_data)
 VALUES
     ('vault', 'Yerel Şifre Kasası',
-     'Kullanıcı adları ve şifreler yalnızca kullanıcının kendi bilgisayarında, C:/Rsdw altındaki şifreli Excel dosyasında saklanır. Sunucuya hiçbir veri gönderilmez.',
+     'Kullanıcı adları ve şifreler yalnızca kullanıcının kendi cihazında, Rsdw klasöründeki şifreli Excel dosyasında saklanır (Windows C:/Rsdw, macOS/Linux/mobil için platform standardı). Sunucuya hiçbir veri gönderilmez.',
      'security', 'lock', 30, true, false)
 ON CONFLICT (key) DO UPDATE
     SET name = EXCLUDED.name,
@@ -135,7 +137,7 @@ BEGIN
             USING
                 ERRCODE = '42501',
                 DETAIL  = 'Module C (yerel şifre kasası) forbids persisting credentials server-side.',
-                HINT    = 'Keep the value in the local C:/Rsdw vault file, or - if it is a one-way '
+                HINT    = 'Keep the value in the local Rsdw vault file, or - if it is a one-way '
                        || 'hash - record the exception in platform.secret_column_allowlist first.';
         END LOOP;
     END LOOP;

@@ -2,7 +2,7 @@
   "name": "@vgantt/desktop",
   "version": "0.1.0",
   "private": true,
-  "description": "Electron shell. Hosts the web UI and owns the local C:/Rsdw vault.",
+  "description": "Vgantt Suite desktop shell. Hosts the web UI and owns the local Rsdw vault.",
   "main": "dist/main.js",
   "scripts": {
     "build": "npm run build --workspace @vgantt/vault-core && tsc -p tsconfig.json && tsc -p tsconfig.preload.json",
@@ -19,8 +19,8 @@
     "typescript": "^5.7.2"
   },
   "build": {
-    "appId": "md.vgantt.desktop",
-    "productName": "Vgantt",
+    "appId": "com.vgantt.suite",
+    "productName": "Vgantt Suite",
     "files": [
       "dist/**/*",
       "renderer/**/*"

@@ -1,5 +1,7 @@
 # Mimari
 
+Vgantt Suite - `suite.vgantt.com`
+
 ## Genel bakış
 
 ```
@@ -13,6 +15,8 @@
        │        (sunucuya gitmez)                   │
        │                                            │
        └──────────────── HTTPS ─────────────────────┘
+                            │
+                  suite.vgantt.com  (nginx)
                             │
                    ┌────────▼─────────┐
                    │  NestJS API      │
@@ -135,6 +139,20 @@ Finans panosundaki grafikler doğrulanmış bir paletle çizilir:
 
 Paletler renk körlüğü ayrımı, açıklık bandı ve kontrast açısından hem açık hem
 koyu temada doğrulandı (`apps/web/src/styles/app.css` içindeki yorumlara bakın).
+
+## Alan adı ve kiracı ayrımı
+
+Tek alan adı: `suite.vgantt.com`. Arayüz kökten, API `/api` altından sunulur -
+aynı origin, dolayısıyla tarayıcı çapraz-origin istek yapmaz.
+
+Kiracı, alan adından değil **oturumdan** belirlenir: giriş sonrası JWT içindeki
+`tid` ve ondan türetilen veritabanı bağlamı. Aynı e-posta birden fazla şirkette
+kayıtlıysa giriş ekranı şirket kodunu (`slug`) sorar.
+
+İleride kiracı başına alt alan adı (`acme.vgantt.com`) istenirse altyapı hazır:
+`platform.tenants.slug` zaten benzersiz ve URL-güvenli biçimde kısıtlı. Tek
+gereken, alt alan adından slug'ı okuyup giriş isteğine eklemek ve joker
+sertifika (`*.vgantt.com`) kullanmak olur. Bugünkü kurulum bunu gerektirmiyor.
 
 ## Dizin yapısı
 

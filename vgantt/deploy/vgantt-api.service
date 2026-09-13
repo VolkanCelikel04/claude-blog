@@ -3,7 +3,7 @@
 # The API runs on the same host as PostgreSQL and connects over loopback, so
 # the database never needs a listening socket on a public interface.
 [Unit]
-Description=Vgantt API
+Description=Vgantt Suite API
 Documentation=https://github.com/VolkanCelikel04/claude-blog/tree/main/vgantt/docs
 After=network-online.target postgresql.service
 Wants=network-online.target

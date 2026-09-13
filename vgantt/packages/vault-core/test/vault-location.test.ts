@@ -72,8 +72,8 @@ describe('vault location per platform', () => {
 
   test('Android: folder sits under filesDir', () => {
     assert.equal(
-      resolveVaultPath({ platform: 'android', baseDirectory: '/data/data/md.vgantt.app/files' }),
-      '/data/data/md.vgantt.app/files/Rsdw/vault.xlsx',
+      resolveVaultPath({ platform: 'android', baseDirectory: '/data/data/com.vgantt.suite/files' }),
+      '/data/data/com.vgantt.suite/files/Rsdw/vault.xlsx',
     );
   });
 

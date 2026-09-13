@@ -36,7 +36,7 @@ export function AppShell() {
     <div className="app-shell">
       <nav className="sidebar" aria-label="Ana menü">
         <div className="sidebar__brand">
-          Vgantt
+          Vgantt Suite
           <span className="sidebar__tenant">{session.tenantName}</span>
         </div>
 

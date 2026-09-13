@@ -35,7 +35,7 @@ export default function LoginPage() {
   return (
     <div className="auth-page">
       <form className="card auth-card" onSubmit={handleSubmit}>
-        <h1 className="page-title" style={{ marginBottom: 4 }}>Vgantt</h1>
+        <h1 className="page-title" style={{ marginBottom: 4 }}>Vgantt Suite</h1>
         <p className="page-subtitle" style={{ marginBottom: 20 }}>
           {mode === 'admin' ? 'Sistem yöneticisi girişi' : 'Şirket hesabınızla giriş yapın'}
         </p>

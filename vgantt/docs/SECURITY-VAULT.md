@@ -1,5 +1,7 @@
 # Modül C - Yerel Şifre Kasası: Teknik Çözüm
 
+Vgantt Suite
+
 ## Kural
 
 > Bu modüldeki hiçbir veri (şifreler, kullanıcı adları vb.) **asla** PostgreSQL

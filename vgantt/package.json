@@ -2,8 +2,11 @@
   "name": "vgantt",
   "version": "0.1.0",
   "private": true,
-  "description": "Vgantt - modular multi-tenant SaaS (PostgreSQL + NestJS + React + Electron)",
-  "workspaces": ["apps/*", "packages/*"],
+  "description": "Vgantt Suite - modular multi-tenant SaaS (PostgreSQL + NestJS + React + Electron)",
+  "workspaces": [
+    "apps/*",
+    "packages/*"
+  ],
   "scripts": {
     "db:migrate": "db/migrate.sh --seed",
     "db:reset": "db/migrate.sh --reset --demo",
@@ -15,5 +18,7 @@
     "dev:web": "npm run dev --workspace @vgantt/web",
     "dev:desktop": "npm run start --workspace @vgantt/desktop"
   },
-  "engines": { "node": ">=22.6.0" }
+  "engines": {
+    "node": ">=22.6.0"
+  }
 }

@@ -1,18 +1,37 @@
-# Tek Sunucuda Kurulum (API + PostgreSQL aynı makinede)
+# Vgantt Suite - Tek Sunucuda Kurulum
+
+API ve PostgreSQL aynı makinede, `suite.vgantt.com` altında.
 
 API'yi veritabanının zaten kurulu olduğu sunucuda çalıştırmak için hazırlanmış
 adımlar. Bu yerleşimde PostgreSQL'in dış dünyaya açık bir portu olmasına gerek
 yoktur: API ona `127.0.0.1` üzerinden bağlanır.
 
 ```
-┌─────────────────── sunucunuz ───────────────────┐
-│                                                 │
-│  nginx :443 ──► API :3000 ──► PostgreSQL :5432  │
-│  (TLS)         (127.0.0.1)    (127.0.0.1)       │
-│    │                                            │
-│    └──► apps/web/dist  (React arayüzü)          │
-└─────────────────────────────────────────────────┘
+              suite.vgantt.com
+                     │
+┌────────────────────┼─────────────────── sunucunuz ──┐
+│                    ▼                                │
+│  nginx :443 ──► API :3000 ──► PostgreSQL :5432      │
+│  (TLS)          (127.0.0.1)   (127.0.0.1)           │
+│    │                                                │
+│    └──► apps/web/dist  (React arayüzü)              │
+└─────────────────────────────────────────────────────┘
+
+  suite.vgantt.com/        -> arayüz
+  suite.vgantt.com/api/    -> API
 ```
+
+Arayüz ve API tek origin paylaşır; tarayıcı hiç çapraz-origin istek yapmaz.
+Bu yüzden `CORS_ORIGINS` bir bağımlılık değil, güvenlik ağıdır.
+
+### DNS
+
+```
+suite.vgantt.com.   A     <sunucu-ip>
+```
+
+Sertifika alınmadan önce bu kaydın yayılmış olması gerekir; certbot HTTP-01
+doğrulaması için alan adının sunucuya çözümlenmesini bekler.
 
 ## Gereksinimler
 
@@ -90,7 +109,7 @@ sudo ln -s /etc/nginx/sites-available/vgantt /etc/nginx/sites-enabled/
 # nginx.conf içindeki http{} bloğuna ekleyin:
 #   limit_req_zone $binary_remote_addr zone=vgantt_auth:10m rate=10r/m;
 sudo nginx -t && sudo systemctl reload nginx
-sudo certbot --nginx -d panel.ornek.com.tr
+sudo certbot --nginx -d suite.vgantt.com
 ```
 
 `CORS_ORIGINS` değerini alan adınızla eşleştirmeyi unutmayın.

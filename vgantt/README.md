@@ -1,7 +1,9 @@
-# Vgantt
+# Vgantt Suite
 
 Modüler, çok kiracılı (multi-tenant) SaaS platformu. PostgreSQL 16 + NestJS +
 React + Electron.
+
+**Üretim:** https://suite.vgantt.com  (arayüz `/`, API `/api`)
 
 ## Ne var
 

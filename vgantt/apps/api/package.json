@@ -2,7 +2,7 @@
   "name": "@vgantt/api",
   "version": "0.1.0",
   "private": true,
-  "description": "Vgantt multi-tenant SaaS API",
+  "description": "Vgantt Suite multi-tenant SaaS API",
   "license": "UNLICENSED",
   "scripts": {
     "build": "nest build",

@@ -41,7 +41,7 @@ async function bootstrap(): Promise<void> {
     const document = SwaggerModule.createDocument(
       app,
       new DocumentBuilder()
-        .setTitle('Vgantt API')
+        .setTitle('Vgantt Suite API')
         .setDescription('Multi-tenant SaaS: tenant izolasyonu, modül lisanslama, uyarı motoru')
         .setVersion('0.1.0')
         .addBearerAuth()
@@ -53,7 +53,7 @@ async function bootstrap(): Promise<void> {
   // Binding to 127.0.0.1 in production keeps the API off the public interface;
   // nginx on the same host is what the outside world talks to.
   await app.listen(port, host);
-  new Logger('Bootstrap').log(`Vgantt API listening on ${host}:${port}/${apiPrefix} [${env}]`);
+  new Logger('Bootstrap').log(`Vgantt Suite API listening on ${host}:${port}/${apiPrefix} [${env}]`);
 }
 
 void bootstrap();

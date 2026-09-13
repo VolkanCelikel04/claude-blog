@@ -3,7 +3,7 @@ import { join } from 'node:path';
 import { registerVaultHandlers, disposeVault } from './vault-ipc.js';
 
 /**
- * Electron shell for Vgantt.
+ * Electron shell for Vgantt Suite.
  *
  * Hardened on purpose, because this process is the one with filesystem access
  * to the vault:
@@ -12,9 +12,15 @@ import { registerVaultHandlers, disposeVault } from './vault-ipc.js';
  *   - navigation and window.open to anywhere but the app origin are blocked
  *   - a CSP that permits the API origin and nothing else
  */
-const WEB_APP_URL = process.env.VGANTT_WEB_URL ?? 'http://localhost:5173';
-const API_ORIGIN = process.env.VGANTT_API_ORIGIN ?? 'http://localhost:3000';
+// Packaged builds point at production; a dev run overrides both with the local
+// Vite and Nest servers.
+const PRODUCTION_ORIGIN = 'https://suite.vgantt.com';
 const isDevelopment = !app.isPackaged;
+
+const WEB_APP_URL =
+  process.env.VGANTT_WEB_URL ?? (isDevelopment ? 'http://localhost:5173' : PRODUCTION_ORIGIN);
+const API_ORIGIN =
+  process.env.VGANTT_API_ORIGIN ?? (isDevelopment ? 'http://localhost:3000' : PRODUCTION_ORIGIN);
 
 let mainWindow: BrowserWindow | null = null;
 
@@ -24,7 +30,7 @@ function createWindow(): void {
     height: 900,
     minWidth: 1024,
     minHeight: 700,
-    title: 'Vgantt',
+    title: 'Vgantt Suite',
     backgroundColor: '#0f172a',
     show: false,
     webPreferences: {
