@@ -13,6 +13,7 @@ async function bootstrap(): Promise<void> {
   const config = app.get(ConfigService);
 
   const port = config.getOrThrow<number>('port');
+  const host = config.getOrThrow<string>('host');
   const apiPrefix = config.getOrThrow<string>('apiPrefix');
   const corsOrigins = config.getOrThrow<string[]>('corsOrigins');
   const env = config.getOrThrow<AppConfig['env']>('env');
@@ -49,8 +50,10 @@ async function bootstrap(): Promise<void> {
     SwaggerModule.setup(`${apiPrefix}/docs`, app, document);
   }
 
-  await app.listen(port);
-  new Logger('Bootstrap').log(`Vgantt API listening on :${port}/${apiPrefix} [${env}]`);
+  // Binding to 127.0.0.1 in production keeps the API off the public interface;
+  // nginx on the same host is what the outside world talks to.
+  await app.listen(port, host);
+  new Logger('Bootstrap').log(`Vgantt API listening on ${host}:${port}/${apiPrefix} [${env}]`);
 }
 
 void bootstrap();

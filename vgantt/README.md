@@ -71,6 +71,20 @@ npm run typecheck        # tüm çalışma alanları
 | [docs/SECURITY-VAULT.md](docs/SECURITY-VAULT.md) | **Modül C teknik çözümü** - `C:/Rsdw`, şifreleme, sınır |
 | [docs/ALERTS.md](docs/ALERTS.md) | 30/15/7/3 uyarı motoru, eşik politikaları |
 | [docs/ADDING-A-MODULE.md](docs/ADDING-A-MODULE.md) | **Yeni modül ekleme rehberi** - adım adım |
+| [docs/DEPLOYMENT.md](docs/DEPLOYMENT.md) | **Sunucu kurulumu** - API + PostgreSQL aynı makinede, systemd + nginx |
+
+## Sunucuya kurulum
+
+API'yi PostgreSQL ile aynı sunucuda çalıştırmak için:
+
+```bash
+git clone <repo> && cd vgantt
+sudo ./deploy/install.sh              # ayar dosyasini olusturur
+sudo nano /etc/vgantt/api.env         # sirlari doldurun
+sudo ./deploy/install.sh --with-db --with-web
+```
+
+Ayrıntılar: [docs/DEPLOYMENT.md](docs/DEPLOYMENT.md).
 
 ## Üretim notları
 

@@ -1,0 +1,60 @@
+# /etc/systemd/system/vgantt-api.service
+#
+# The API runs on the same host as PostgreSQL and connects over loopback, so
+# the database never needs a listening socket on a public interface.
+[Unit]
+Description=Vgantt API
+Documentation=https://github.com/VolkanCelikel04/claude-blog/tree/main/vgantt/docs
+After=network-online.target postgresql.service
+Wants=network-online.target
+Requires=postgresql.service
+
+[Service]
+Type=simple
+User=vgantt
+Group=vgantt
+WorkingDirectory=/opt/vgantt
+
+# Secrets live in a root-owned 0640 file, not in this unit and not in the repo.
+EnvironmentFile=/etc/vgantt/api.env
+
+ExecStart=/usr/bin/node apps/api/dist/main.js
+Restart=always
+RestartSec=5
+# Give in-flight requests a chance to finish; Nest's shutdown hooks close the
+# connection pools on SIGTERM.
+KillSignal=SIGTERM
+TimeoutStopSec=30
+
+StandardOutput=journal
+StandardError=journal
+SyslogIdentifier=vgantt-api
+
+# --- hardening -------------------------------------------------------------
+# The API writes nothing to disk: no uploads, no cache, no vault file (module C
+# data never leaves the user's own machine). So it gets a read-only filesystem.
+NoNewPrivileges=true
+PrivateTmp=true
+PrivateDevices=true
+ProtectSystem=strict
+ProtectHome=true
+ProtectKernelTunables=true
+ProtectKernelModules=true
+ProtectControlGroups=true
+ProtectClock=true
+ProtectHostname=true
+RestrictSUIDSGID=true
+RestrictRealtime=true
+RestrictNamespaces=true
+LockPersonality=true
+MemoryDenyWriteExecute=false
+RestrictAddressFamilies=AF_INET AF_INET6 AF_UNIX
+SystemCallFilter=@system-service
+SystemCallErrorNumber=EPERM
+CapabilityBoundingSet=
+AmbientCapabilities=
+
+LimitNOFILE=65535
+
+[Install]
+WantedBy=multi-user.target

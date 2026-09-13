@@ -13,6 +13,8 @@ export interface DbPoolConfig {
 export interface AppConfig {
   env: 'development' | 'test' | 'production';
   port: number;
+  /** Bind address. 127.0.0.1 when a reverse proxy fronts the API on the same host. */
+  host: string;
   apiPrefix: string;
   corsOrigins: string[];
   db: {
@@ -74,6 +76,7 @@ export function loadConfiguration(): AppConfig {
   return {
     env,
     port: num('PORT', 3000),
+    host: process.env.HOST ?? '0.0.0.0',
     apiPrefix: process.env.API_PREFIX ?? 'api',
     corsOrigins: (process.env.CORS_ORIGINS ?? 'http://localhost:5173')
       .split(',')
