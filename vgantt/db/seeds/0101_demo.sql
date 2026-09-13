@@ -3,14 +3,16 @@
 -- Three tenants with deliberately different expiry distances so the 30/15/7/3
 -- ladder can be observed end to end. Dev/staging only.
 --
--- All demo logins use the password:  Vgantt2026!
+-- Demo passwords:
+--   VganttAdmin (admin@vgantt.local) : 12345
+--   All tenant users                 : Vgantt2026!
 -- =============================================================================
 \set ON_ERROR_STOP on
 
 -- VganttAdmin operator
 INSERT INTO platform.admin_users (id, email, full_name, password_hash, role) VALUES
     ('0d000000-0000-4000-8000-00000000000a', 'admin@vgantt.local', 'Sistem Yöneticisi',
-     crypt('Vgantt2026!', gen_salt('bf', 12)), 'super_admin')
+     crypt('12345', gen_salt('bf', 12)), 'super_admin')
 ON CONFLICT (email) DO NOTHING;
 
 -- ------------------------------------------------------------------ tenants

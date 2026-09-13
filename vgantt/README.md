@@ -43,15 +43,13 @@ Docker ile geliştirme: `docker compose up postgres` sonra `db/migrate.sh --demo
 
 ### Demo hesaplar
 
-Tümünün şifresi `Vgantt2026!`
-
-| Rol | E-posta |
-|---|---|
-| VganttAdmin | `admin@vgantt.local` |
-| Şirket yöneticisi (tüm modüller) | `admin@acme.example` |
-| Finans sorumlusu | `finans@acme.example` |
-| Kasa modülü kapalı şirket | `admin@beta.example` |
-| Yalnızca lisans modülü | `admin@gamma.example` |
+| Rol | E-posta | Şifre |
+|---|---|---|
+| VganttAdmin | `admin@vgantt.local` | `12345` |
+| Şirket yöneticisi (tüm modüller) | `admin@acme.example` | `Vgantt2026!` |
+| Finans sorumlusu | `finans@acme.example` | `Vgantt2026!` |
+| Kasa modülü kapalı şirket | `admin@beta.example` | `Vgantt2026!` |
+| Yalnızca lisans modülü | `admin@gamma.example` | `Vgantt2026!` |
 
 Demo veri, üç şirketi bilerek farklı uyarı bantlarına yerleştirir: Acme 7 gün,
 Beta 30 gün, Gamma 3 gün kala.
